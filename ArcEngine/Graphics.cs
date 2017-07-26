@@ -116,11 +116,9 @@ namespace ArcEngine
         {
             foreach (SolidObj SolidObject in Objects.SolidObjList)
             {
-                Console.Write("Loading Sprites of Solid Object : " + SolidObject.ID);
+                Console.WriteLine("Loading Sprites of Solid Object : " + SolidObject.ID);
                 int imgx = SolidObject.Width * SolidObject.Scale;
                 int imgy = SolidObject.Height * SolidObject.Scale;
-                Console.WriteLine(SolidObject.Width.ToString() + " : " + SolidObject.Height.ToString() + " : " + SolidObject.Scale.ToString());
-                Console.ReadLine();
                 SolidObject.SpriteTexture = Texture.FromFile(device, SolidObject.SpritePath, imgx, imgy, 1, SlimDX.Direct3D9.Usage.None, SlimDX.Direct3D9.Format.A8B8G8R8, SlimDX.Direct3D9.Pool.Default, SlimDX.Direct3D9.Filter.Point, SlimDX.Direct3D9.Filter.Point, 1);
                 Objects.ObjIDList.Add(SolidObject.ID);
                 Objects.SolidLoadCount++;
@@ -175,72 +173,108 @@ namespace ArcEngine
         {
             foreach (CharObj CharObject in Objects.CharObjList)
             {
-                //Set the Physic Coordinates to the CharObj Coordinates
-                Objects.CharObjUpdate(CharObject);
-                if (CharObject.X > (World.CameraX - World.WindowWidth) & CharObject.X < (World.CameraX + World.WindowWidth))
+                if (CharObject.X > (World.CameraX - (CharObject.AnimationList[0].Width * 2)) & CharObject.X < (World.CameraX + World.WindowWidth + (CharObject.AnimationList[0].Width * 2)) & CharObject.Y > (World.CameraY - (CharObject.AnimationList[0].Height * 2)) & CharObject.Y < (World.CameraY + World.WindowHeight + (CharObject.AnimationList[0].Height * 2)))
                 {
-                    //Console.WriteLine("Object In Frame: " + CharObject.ID.ToString() + " Player: " + CharObject.isPlayer.ToString());
-                }
-                sprite.Begin(SlimDX.Direct3D9.SpriteFlags.SortDepthBackToFront | SlimDX.Direct3D9.SpriteFlags.AlphaBlend | SpriteFlags.SortTexture);
-                if (CharObject.AnimationList[CharObject.CurrentAnimation].TextureList.Count == 1)
-                {
-                    //If the animation has 1 frame and therefore doesent need a frame counter, just draw the one frame
-                    sprite.Draw(CharObject.AnimationList[CharObject.CurrentAnimation].TextureList[0], new Vector3(0, 0, 0), new Vector3(CharObject.PhysicsObject.X, CharObject.PhysicsObject.Y, 0), new Color4(1.0f, 1.0f, 1.0f));
+                    //Remove from OffscreenObjects
+                    if (World.OffsceenObjects.Contains(CharObject.ID))
+                    {
+                        World.OffsceenObjects.Remove(CharObject.ID);
+                    }
+                    //Set the Physic Coordinates to the CharObj Coordinates
+                    Objects.CharObjUpdate(CharObject);
+                    sprite.Begin(SlimDX.Direct3D9.SpriteFlags.SortDepthBackToFront | SlimDX.Direct3D9.SpriteFlags.AlphaBlend | SpriteFlags.SortTexture);
+                    if (CharObject.AnimationList[CharObject.CurrentAnimation].TextureList.Count == 1)
+                    {
+                        //If the animation has 1 frame and therefore doesent need a frame counter, just draw the one frame
+                        sprite.Draw(CharObject.AnimationList[CharObject.CurrentAnimation].TextureList[0], new Vector3(0, 0, 0), new Vector3(CharObject.PhysicsObject.X - World.CameraX, CharObject.PhysicsObject.Y - World.CameraY, 0), new Color4(1.0f, 1.0f, 1.0f));
+                    }
+                    else
+                    {
+                        //Set the animation frame taking into account the CharObj.Speed
+                        int AnimationFrame = (int)Math.Round((double)(CharObject.AnimationList[CharObject.CurrentAnimation].CurrentFrame * CharObject.AnimationList[CharObject.CurrentAnimation].Frames) / (CharObject.AnimationList[CharObject.CurrentAnimation].Speed * CharObject.AnimationList[CharObject.CurrentAnimation].Frames), 0);
+                        //Draw
+                        sprite.Draw(CharObject.AnimationList[CharObject.CurrentAnimation].TextureList[AnimationFrame], new Vector3(0, 0, 0), new Vector3(CharObject.PhysicsObject.X - World.CameraX, CharObject.PhysicsObject.Y - World.CameraY, (float)CharObject.Depth / 100), new Color4(1.0f, 1.0f, 1.0f));
+                        //Advance Current Frame
+                        CharObject.AnimationList[CharObject.CurrentAnimation].CurrentFrame++;
+                        //If at Max Frame(CharObj.Frames), reset Frame Counter(CurrentFrame) to 0
+                        if ((int)Math.Round((double)(CharObject.AnimationList[CharObject.CurrentAnimation].CurrentFrame * CharObject.AnimationList[CharObject.CurrentAnimation].Frames) / (CharObject.AnimationList[CharObject.CurrentAnimation].Speed * CharObject.AnimationList[CharObject.CurrentAnimation].Frames), 0) == CharObject.AnimationList[CharObject.CurrentAnimation].Frames)
+                        {
+                            CharObject.AnimationList[CharObject.CurrentAnimation].CurrentFrame = 0;
+                        }
+                    }
+                    sprite.End();
                 }
                 else
                 {
-                    //Set the animation frame taking into account the CharObj.Speed
-                    int AnimationFrame = (int)Math.Round((double)(CharObject.AnimationList[CharObject.CurrentAnimation].CurrentFrame * CharObject.AnimationList[CharObject.CurrentAnimation].Frames) / (CharObject.AnimationList[CharObject.CurrentAnimation].Speed * CharObject.AnimationList[CharObject.CurrentAnimation].Frames), 0);
-                    //Draw
-                    sprite.Draw(CharObject.AnimationList[CharObject.CurrentAnimation].TextureList[AnimationFrame], new Vector3(0, 0, 0), new Vector3(CharObject.PhysicsObject.X, CharObject.PhysicsObject.Y, (float)CharObject.Depth / 100), new Color4(1.0f, 1.0f, 1.0f));
-                    //Advance Current Frame
-                    CharObject.AnimationList[CharObject.CurrentAnimation].CurrentFrame++;
-                    //If at Max Frame(CharObj.Frames), reset Frame Counter(CurrentFrame) to 0
-                    if ((int)Math.Round((double)(CharObject.AnimationList[CharObject.CurrentAnimation].CurrentFrame * CharObject.AnimationList[CharObject.CurrentAnimation].Frames) / (CharObject.AnimationList[CharObject.CurrentAnimation].Speed * CharObject.AnimationList[CharObject.CurrentAnimation].Frames), 0) == CharObject.AnimationList[CharObject.CurrentAnimation].Frames)
+                    if (!World.OffsceenObjects.Contains(CharObject.ID))
                     {
-                        CharObject.AnimationList[CharObject.CurrentAnimation].CurrentFrame = 0;
+                        World.OffsceenObjects.Add(CharObject.ID);
                     }
                 }
-                sprite.End();
             }
         }
         static public void DrawSolidObjects()
         {
+            //Console.WriteLine("Offscreen Objects: " + World.OffsceenObjects.Count.ToString());
             foreach (SolidObj SolidObject in Objects.SolidObjList)
             {
-                sprite.Begin(SlimDX.Direct3D9.SpriteFlags.SortDepthBackToFront | SlimDX.Direct3D9.SpriteFlags.AlphaBlend | SpriteFlags.SortTexture);
-                sprite.Draw(SolidObject.SpriteTexture, new Vector3(0, 0, 0), new Vector3((float)SolidObject.X, (float)SolidObject.Y, 0), new Color4(1.0f, 1.0f, 1.0f));
-                sprite.End();
+                if (SolidObject.X > (World.CameraX - (SolidObject.Width * 2)) & SolidObject.X < (World.CameraX + World.WindowWidth + (SolidObject.Width * 2)) & SolidObject.Y > (World.CameraY - (SolidObject.Height * 2)) & SolidObject.Y < (World.CameraY + World.WindowHeight + (SolidObject.Height * 2)))
+                {
+                    if (World.OffsceenObjects.Contains(SolidObject.ID))
+                    {
+                        World.OffsceenObjects.Remove(SolidObject.ID);
+                    }
+                    sprite.Begin(SlimDX.Direct3D9.SpriteFlags.SortDepthBackToFront | SlimDX.Direct3D9.SpriteFlags.AlphaBlend | SpriteFlags.SortTexture);
+                    sprite.Draw(SolidObject.SpriteTexture, new Vector3(0, 0, 0), new Vector3((float)SolidObject.X - World.CameraX, (float)SolidObject.Y - World.CameraY, 0), new Color4(1.0f, 1.0f, 1.0f));
+                    sprite.End();
+                }
+                else
+                {
+                    if (!World.OffsceenObjects.Contains(SolidObject.ID))
+                    {
+                        World.OffsceenObjects.Add(SolidObject.ID);
+                    }
+                    //Console.WriteLine("SolidObject out of frame");
+                }
             }
         }
         static public void DrawTileObjects()
         {
-            sprite.Begin(SlimDX.Direct3D9.SpriteFlags.SortDepthBackToFront | SlimDX.Direct3D9.SpriteFlags.AlphaBlend | SpriteFlags.SortTexture);
             foreach (TileObj TileObject in Objects.TileObjList)
             {
+                sprite.Begin(SlimDX.Direct3D9.SpriteFlags.SortDepthBackToFront | SlimDX.Direct3D9.SpriteFlags.AlphaBlend | SpriteFlags.SortTexture);
                 if (TileObject.isBackground)
                 {
-                    int x = 0;
-                    int y = 0;
-                    while (x < Graphics.form.ClientSize.Width)
+                    int x = World.CameraX - World.TileWidth;
+                    int y = World.CameraY - World.TileHeight;
+                    while (x < World.CameraX + Graphics.form.ClientSize.Width + World.TileWidth)
                     {
-                        while(y < Graphics.form.ClientSize.Height) {
-                        
-                        sprite.Draw(TileObject.TileTexture, new Vector3(0, 0, 0), new Vector3(x, y, 0), new Color4(1.0f, 1.0f, 1.0f));
-                        y += TileObject.Height;
+                        while (y < World.CameraY + Graphics.form.ClientSize.Height + World.TileHeight)
+                        {
+
+                            sprite.Draw(TileObject.TileTexture, new Vector3(0, 0, 0), new Vector3(x - World.CameraX - World.TileOffsetX, y - World.CameraY - World.TileOffsetY, 0), new Color4(1.0f, 1.0f, 1.0f));
+                            y += TileObject.Height;
                     }
-                        y = 0;
+                        y = World.CameraY - World.TileHeight;
                         x += TileObject.Width;
                     }
                 }
+                sprite.End();
             }
             foreach (TileGroup Tile_Group in Objects.TileGroupList)
             {
+                sprite.Begin(SlimDX.Direct3D9.SpriteFlags.SortDepthBackToFront | SlimDX.Direct3D9.SpriteFlags.AlphaBlend | SpriteFlags.SortTexture);
                 foreach (Point point in Tile_Group.PointList)
                 {
-                    
-                    sprite.Draw(Tile_Group.Tile.TileTexture, new Vector3(0, 0, 0), new Vector3(point.X, point.Y, (float)Tile_Group.Tile.Depth/100), new Color4(1.0f, 1.0f, 1.0f));
-                }
+                    if (point.X > (World.CameraX - (Tile_Group.Tile.Width * 2)) & point.X < (World.CameraX + World.WindowWidth + (Tile_Group.Tile.Width * 2)) & point.Y > (World.CameraY - (Tile_Group.Tile.Height * 2)) & point.Y < (World.CameraY + World.WindowHeight + (Tile_Group.Tile.Height * 2)))
+                    {
+                        sprite.Draw(Tile_Group.Tile.TileTexture, new Vector3(0, 0, 0), new Vector3(point.X - World.CameraX, point.Y - World.CameraY, 0), new Color4(1.0f, 1.0f, 1.0f));
+                    }
+                    else
+                    {
+                        //Console.WriteLine("TileGroup point out of frame");
+                    }
+                } 
             }
             sprite.End();
         }

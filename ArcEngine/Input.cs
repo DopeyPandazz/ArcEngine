@@ -11,6 +11,7 @@ namespace ArcEngine
         static public DirectInput directInput;
         static public Keyboard keyboard;
         static public string lastkey = "";
+        static public string currentkey = "";
         static public void Start()
         {
             directInput = new DirectInput();
@@ -42,54 +43,76 @@ namespace ArcEngine
         public static void HandleInput()
         {
             
-            string key = Input.GetKey();
-            if (KeyPressed())
+            KeyboardState key = keyboard.GetCurrentState();
+            if (KeyPressed() & key.PressedKeys.Count > 0)
             {
-                if (key.ToLower() != lastkey)
+                //if (key.ToLower() != lastkey)
+                //{
+                //    Console.WriteLine(key);
+                //}
+                lastkey = "null";
+                currentkey = "null";
+                foreach (Key akey in key.PressedKeys.Reverse())
                 {
-                    Console.WriteLine(key);
+                    if (lastkey == "null")
+                    {
+                        if (akey == Key.W) { lastkey = "w"; }
+                        if (akey == Key.A) { lastkey = "a"; }
+                        if (akey == Key.S) { lastkey = "s"; }
+                        if (akey == Key.D) { lastkey = "d"; }
+                    }
                 }
-                lastkey = key.ToLower();
-                if ((key.ToLower()).EndsWith("w"))
+                foreach (Key akey in key.PressedKeys)
+                {
+                    if (currentkey == "null")
+                    {
+                        if (akey == Key.W) { currentkey = "w"; }
+                        if (akey == Key.A) { currentkey = "a"; }
+                        if (akey == Key.S) { currentkey = "s"; }
+                        if (akey == Key.D) { currentkey = "d"; }
+                    }
+                }
+                bool sprint = key.IsPressed(Key.LeftShift);
+                if (currentkey == "w")
                 {
                     foreach (CharObj CharObject in Objects.CharObjList)
                     {
                         if (CharObject.isPlayer)
                         {
-                            World.PlayerUp(CharObject);
+                            World.PlayerUp(CharObject,sprint);
                             return;
                         }
                     }
                 }
-                if ((key.ToLower()).EndsWith("a"))
+                if (currentkey == "a")
                 {
                     foreach (CharObj CharObject in Objects.CharObjList)
                     {
                         if (CharObject.isPlayer)
                         {
-                            World.PlayerLeft(CharObject);
+                            World.PlayerLeft(CharObject, sprint);
                             return;
                         }
                     }
                 }
-                if ((key.ToLower()).EndsWith("s"))
+                if (currentkey == "s")
                 {
                     foreach (CharObj CharObject in Objects.CharObjList)
                     {
                         if (CharObject.isPlayer)
                         {
-                            World.PlayerDown(CharObject);
+                            World.PlayerDown(CharObject, sprint);
                             return;
                         }
                     }
                 }
-                if ((key.ToLower()).EndsWith("d"))
+                if (currentkey == "d")
                 {
                     foreach (CharObj CharObject in Objects.CharObjList)
                     {
                         if (CharObject.isPlayer)
                         {
-                            World.PlayerRight(CharObject);
+                            World.PlayerRight(CharObject, sprint);
                             return;
                         }
                     }
@@ -97,7 +120,7 @@ namespace ArcEngine
             }
             else
             {
-                if (lastkey.EndsWith("w"))
+                if (lastkey == "w")
                 {
                     foreach (CharObj CharObject in Objects.CharObjList)
                     {
@@ -107,7 +130,7 @@ namespace ArcEngine
                         }
                     }
                 }
-                if (lastkey.EndsWith("a"))
+                if (lastkey == "a")
                 {
                     foreach (CharObj CharObject in Objects.CharObjList)
                     {
@@ -117,7 +140,7 @@ namespace ArcEngine
                         }
                     }
                 }
-                if (lastkey.EndsWith("s"))
+                if (lastkey == "s")
                 {
                     foreach (CharObj CharObject in Objects.CharObjList)
                     {
@@ -127,7 +150,7 @@ namespace ArcEngine
                         }
                     }
                 }
-                if (lastkey.EndsWith("d"))
+                if (lastkey == "d")
                 {
                     foreach (CharObj CharObject in Objects.CharObjList)
                     {
