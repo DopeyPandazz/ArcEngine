@@ -4,7 +4,7 @@
 # Todo
 - [x] Add SolidOject(Single Frame CharObj, or TileObj with physics) (26/07)
 - [x] Fix Follow Camera - Y axis (26/07)
-- [ ] Add Effect Object (Play Animation then dispose)
+- [x] Add Effect Object (Play Animation then dispose) (27/07)
 - [ ] Modify Physics Engine to work with top down 2D
 - [ ] Add Event Detection (Example: Player reached coordinates, or Player interacted with the NPC)
 - [ ] Add Char and Solid Object classification (enemy, furniture, etc)
