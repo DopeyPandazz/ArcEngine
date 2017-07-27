@@ -8,9 +8,11 @@ namespace ArcEngine
 {
     class Input
     {
+        bool epressrelease = true;
         static public DirectInput directInput;
         static public Keyboard keyboard;
         static public string lastkey = "";
+        static public KeyboardState LastKeyState;
         static public string currentkey = "";
         static public void Start()
         {
@@ -42,8 +44,12 @@ namespace ArcEngine
         }
         public static void HandleInput()
         {
-            
             KeyboardState key = keyboard.GetCurrentState();
+            if (key.IsPressed(Key.E))
+            {
+                CharObj player = Objects.GetCharObj("Player");
+                Objects.DeployEffectObj(Objects.GetEffectObj("ExplosionEffect"), player.X - (player.AnimationList[player.CurrentAnimation].Width / 2), player.Y);
+            }
             if (KeyPressed() & key.PressedKeys.Count > 0)
             {
                 //if (key.ToLower() != lastkey)
@@ -79,7 +85,8 @@ namespace ArcEngine
                     {
                         if (CharObject.isPlayer)
                         {
-                            World.PlayerUp(CharObject,sprint);
+
+                            Functions.PlayerUp(CharObject,sprint);
                             return;
                         }
                     }
@@ -90,7 +97,7 @@ namespace ArcEngine
                     {
                         if (CharObject.isPlayer)
                         {
-                            World.PlayerLeft(CharObject, sprint);
+                            Functions.PlayerLeft(CharObject, sprint);
                             return;
                         }
                     }
@@ -101,7 +108,7 @@ namespace ArcEngine
                     {
                         if (CharObject.isPlayer)
                         {
-                            World.PlayerDown(CharObject, sprint);
+                            Functions.PlayerDown(CharObject, sprint);
                             return;
                         }
                     }
@@ -112,7 +119,7 @@ namespace ArcEngine
                     {
                         if (CharObject.isPlayer)
                         {
-                            World.PlayerRight(CharObject, sprint);
+                            Functions.PlayerRight(CharObject, sprint);
                             return;
                         }
                     }
@@ -126,7 +133,7 @@ namespace ArcEngine
                     {
                         if (CharObject.isPlayer)
                         {
-                            World.PlayerReleaseUp(CharObject);
+                            Functions.PlayerReleaseUp(CharObject);
                         }
                     }
                 }
@@ -136,7 +143,7 @@ namespace ArcEngine
                     {
                         if (CharObject.isPlayer)
                         {
-                            World.PlayerReleaseLeft(CharObject);
+                            Functions.PlayerReleaseLeft(CharObject);
                         }
                     }
                 }
@@ -146,7 +153,7 @@ namespace ArcEngine
                     {
                         if (CharObject.isPlayer)
                         {
-                            World.PlayerReleaseDown(CharObject);
+                           Functions.PlayerReleaseDown(CharObject);
                         }
                     }
                 }
@@ -156,12 +163,12 @@ namespace ArcEngine
                     {
                         if (CharObject.isPlayer)
                         {
-                            World.PlayerReleaseRight(CharObject);
+                            Functions.PlayerReleaseRight(CharObject);
                         }
                     }
                 }
             }
-            
+            Input.LastKeyState = keyboard.GetCurrentState();
         }
     }
 }

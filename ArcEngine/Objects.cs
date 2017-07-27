@@ -269,6 +269,46 @@ namespace ArcEngine
             System.Drawing.Bitmap bit = new System.Drawing.Bitmap(spritepath);
             Width = bit.Width;
             Height = bit.Height;
+
+        }
+    }
+    class EffectObj
+    {
+        public double X { get; set; }
+        public double Y { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public int Depth { get; set; }
+        public int Speed { get; set; }
+        public int Scale { get; set; }
+        public bool Deploy { get; set; }
+        public SpriteObj SpriteObject { get; set; }
+        public string ID { get; set; }
+        public EffectObj(SpriteObj spriteobj, int depth, int speed, int scale)
+        {
+            Deploy = false;
+            X = 0;
+            Y = 0;
+            SpriteObject = spriteobj;
+            Scale = scale;
+            Speed = speed;
+            Depth = depth;
+            ID = Objects.GetID();
+            System.Drawing.Bitmap bit = new System.Drawing.Bitmap(spriteobj.SpriteList[0]);
+            Width = bit.Width;
+            Height = bit.Height;
+        }
+   }
+    class NameIDObj
+    {
+        public string ID { get; set; }
+        public string Name { get; set; }
+        public string ObjType { get; set; }
+        public NameIDObj(string id, string name, string objtype)
+        {
+            ID = id;
+            Name = name;
+            ObjType = objtype;
         }
     }
     class Objects
@@ -277,11 +317,15 @@ namespace ArcEngine
         static public List<TileGroup> TileGroupList = new List<TileGroup>();
         static public List<TileObj> TileObjList = new List<TileObj>();
         static public List<SolidObj> SolidObjList = new List<SolidObj>();
+        static public List<EffectObj> EffectObjList = new List<EffectObj>();
+        static public List<EffectObj> DeployedEffectObjList = new List<EffectObj>();
+        static public List<NameIDObj> NameIDObjList = new List<NameIDObj>();
         static public List<string> ObjIDList;
         static public int CharLoadCount = 0;
         static public int TileLoadCount = 0;
         static public int SpriteLoadCount = 0;
         static public int SolidLoadCount = 0;
+        static public int EffectLoadCount = 0;
         static public int RandomCount = 0;
         static public string RandomString(int size, bool lowerCase, int seed)
         {
@@ -315,15 +359,23 @@ namespace ArcEngine
             CharObject.PhysicsObject.X = (float)CharObject.X;
             CharObject.PhysicsObject.Y = (float)CharObject.Y;
         }
-        static public void CreateCharObj(double x, double y, List<SpriteObj> animationlist, PhysObj physicsobject, int depth, int speed, int scale, bool isplayer)
+        static public void CreateCharObj(double x, double y, List<SpriteObj> animationlist, PhysObj physicsobject, int depth, int speed, int scale, bool isplayer, string name = "null")
         {
             CharObj CharObject = new CharObj(x, y, animationlist, physicsobject, depth, speed, scale, isplayer);
             Objects.CharObjList.Add(CharObject);
             foreach (SpriteObj spriteobject in animationlist) {
                 spriteobject.Speed = speed;
             }
+            if (name == "null")
+            {
+                Objects.NameIDObjList.Add(new NameIDObj(CharObject.ID, CharObject.ID, "CharObj"));
+            }
+            else
+            {
+                Objects.NameIDObjList.Add(new NameIDObj(CharObject.ID, name, "CharObj"));
+            }
         }
-        static public void CreateCharObj(double x, double y, List<SpriteObj> animationlist, int mass, int depth, int speed, int scale, bool isplayer)
+        static public void CreateCharObj(double x, double y, List<SpriteObj> animationlist, int mass, int depth, int speed, int scale, bool isplayer, string name = "null")
         {
             CharObj CharObject = new CharObj(x, y, animationlist, mass, depth, speed, scale, isplayer);
             Objects.CharObjList.Add(CharObject);
@@ -335,34 +387,123 @@ namespace ArcEngine
             {
                 CharObject.CurrentAnimation = 4;
             }
+            if (name == "null")
+            {
+                Objects.NameIDObjList.Add(new NameIDObj(CharObject.ID, CharObject.ID, "CharObj"));
+            }
+            else
+            {
+                Objects.NameIDObjList.Add(new NameIDObj(CharObject.ID, name, "CharObj"));
+            }
         }
-        static public void CreateTileObj(string spritepath, int depth, int scale)
+        static public void CreateTileObj(string spritepath, int depth, int scale, string name = "null")
         {
             TileObj TileObject = new TileObj(spritepath, depth, scale, false);
             Objects.TileObjList.Add(TileObject);
+            if (name == "null")
+            {
+                Objects.NameIDObjList.Add(new NameIDObj(TileObject.ID, TileObject.ID, "TileObj"));
+            }
+            else
+            {
+                Objects.NameIDObjList.Add(new NameIDObj(TileObject.ID, name, "TileObj"));
+            }
+
         }
-        static public void CreateTileObj(string spritepath, int depth, int scale, bool isbackground)
+        static public void CreateTileObj(string spritepath, int depth, int scale, bool isbackground, string name = "null")
         {
             TileObj TileObject = new TileObj(spritepath, depth, scale, isbackground);
             Objects.TileObjList.Add(TileObject);
-            //Objects.TileObjList = Objects.TileObjList.OrderBy(TileObj => TileObj.Depth).ToList();
+            if (name == "null")
+            {
+                Objects.NameIDObjList.Add(new NameIDObj(TileObject.ID, TileObject.ID, "TileObj"));
+            }
+            else
+            {
+                Objects.NameIDObjList.Add(new NameIDObj(TileObject.ID, name, "TileObj"));
+            }
         }
-        static public void CreateTileGroup(string spritepath, int depth, int scale, List<Point> xypointlist)
+        static public void CreateTileGroup(string spritepath, int depth, int scale, List<Point> xypointlist, string name = "null")
         {
             TileObj TileObject = new TileObj(spritepath, depth, scale, false);
             TileGroup Tile_Group = new TileGroup(TileObject, xypointlist);
             Objects.TileGroupList.Add(Tile_Group);
             //Objects.TileGroupList = Objects.TileGroupList.OrderBy(TileGroupList => TileGroupList.Tile.Depth).ToList();
+            if (name == "null")
+            {
+                Objects.NameIDObjList.Add(new NameIDObj(TileObject.ID, TileObject.ID, "TileObj"));
+            }
+            else
+            {
+                Objects.NameIDObjList.Add(new NameIDObj(TileObject.ID, name, "TileObj"));
+            }
         }
-        static public void CreateSolidObject( string spritepath, double x, double y, int depth, int scale, double mass)
+        static public void CreateSolidObj(string spritepath, double x, double y, int depth, int scale, double mass, string name = "null")
         {
             SolidObj SolidObject = new SolidObj(x, y, spritepath, new PhysObj((float)y, (float)x, 0.0, 0.0, 10, mass, true), depth, scale);
             Objects.SolidObjList.Add(SolidObject);
+            if (name == "null")
+            {
+                Objects.NameIDObjList.Add(new NameIDObj(SolidObject.ID, SolidObject.ID, "SolidObj"));
+            }
+            else
+            {
+                Objects.NameIDObjList.Add(new NameIDObj(SolidObject.ID, name, "SolidObj"));
+            }
         }
-        static public void CreateSolidObject( string spritepath, double x, double y, PhysObj PhysObject, int depth, int scale)
+        static public void CreateSolidObj(string spritepath, double x, double y, PhysObj PhysObject, int depth, int scale, string name = "null")
         {
             SolidObj SolidObject = new SolidObj(x, y, spritepath, PhysObject, depth, scale);
             Objects.SolidObjList.Add(SolidObject);
+            if (name == "null")
+            {
+                Objects.NameIDObjList.Add(new NameIDObj(SolidObject.ID, SolidObject.ID, "SolidObj"));
+            }
+            else
+            {
+                Objects.NameIDObjList.Add(new NameIDObj(SolidObject.ID, name, "SolidObj"));
+            }
+        }
+        static public void CreateEffectObj(SpriteObj spriteobj, int depth, int speed, int scale, string name = "null")
+        {
+            EffectObj EffectObject = new EffectObj(spriteobj, depth, speed, scale);
+            Objects.EffectObjList.Add(EffectObject);
+            if (name == "null")
+            {
+                Objects.NameIDObjList.Add(new NameIDObj(EffectObject.ID, EffectObject.ID, "EffectObj"));
+            }
+            else
+            {
+                Objects.NameIDObjList.Add(new NameIDObj(EffectObject.ID, name, "EffectObj"));
+            }
+        }
+        static public void DeployEffectObj(EffectObj effectobject, double x, double y)
+        {
+            effectobject.X = x;
+            effectobject.Y = y;
+            effectobject.Deploy = true;
+        }
+        static public CharObj GetCharObj(string name)
+        {
+            foreach(NameIDObj NameID in Objects.NameIDObjList)
+            {
+                if (NameID.Name == name & NameID.ObjType == "CharObj")
+                {
+                    return Objects.CharObjList.Find(x => x.ID.Contains(NameID.ID));
+                }
+            }
+            return null;
+        }
+        static public EffectObj GetEffectObj(string name)
+        {
+            foreach (NameIDObj NameID in Objects.NameIDObjList)
+            {
+                if (NameID.Name == name & NameID.ObjType == "EffectObj")
+                {
+                    return Objects.EffectObjList.Find(x => x.ID.Contains(NameID.ID));
+                }
+            }
+            return null;
         }
     }
 }

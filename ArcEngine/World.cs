@@ -46,9 +46,9 @@ namespace ArcEngine
                 SpriteList.Add(new SpriteObj(Core.CoreDirectory + "\\sprites\\char\\char_right_still")); //5
                 SpriteList.Add(new SpriteObj(Core.CoreDirectory + "\\sprites\\char\\char_up_still")); //6
                 SpriteList.Add(new SpriteObj(Core.CoreDirectory + "\\sprites\\char\\char_down_still")); //7
-                Objects.CreateCharObj(200.0, 200.0, SpriteList, 10, 100, 6, 1, true);
+                Objects.CreateCharObj(200.0, 200.0, SpriteList, 10, 100, 10, 1, true, "Player");
 
-
+                Objects.CreateEffectObj(new SpriteObj(Core.CoreDirectory + "\\sprites\\explosion"), -1, 5, 2, "ExplosionEffect");
                 //SpriteList = new List<SpriteObj>();
                 //SpriteList.Add(new SpriteObj(Core.CoreDirectory + "\\sprites\\shoot"));
                 //Objects.CreateCharObj(100.0, 100.0, SpriteList, 10, 10, 4, 1, false);
@@ -59,11 +59,11 @@ namespace ArcEngine
 
                 SpriteList = new List<SpriteObj>();
                 SpriteList.Add(new SpriteObj(Core.CoreDirectory + "\\sprites\\starship"));
-                Objects.CreateCharObj(400.0, 100.0, SpriteList, 10, 96, 4, 1, false);
+                Objects.CreateCharObj(400.0, 100.0, SpriteList, 10, 96, 4, 1, false, "Starship");
 
-                //SpriteList = new List<SpriteObj>();
-                //SpriteList.Add(new SpriteObj(Core.CoreDirectory + "\\sprites\\tank"));
-                //Objects.CreateCharObj(400.0, 250.0, SpriteList, 10, 124, 4, 1, false);
+                SpriteList = new List<SpriteObj>();
+                SpriteList.Add(new SpriteObj(Core.CoreDirectory + "\\sprites\\tank"));
+                Objects.CreateCharObj(400.0, 250.0, SpriteList, 10, 124, 10, 1, false, "Tank");
 
                 //SpriteList = new List<SpriteObj>();
                 //SpriteList.Add(new SpriteObj(Core.CoreDirectory + "\\sprites\\rustbug"));
@@ -90,141 +90,9 @@ namespace ArcEngine
                 //points2.Add(new Point(0, 0));
                 //Objects.CreateTileGroup(Core.CoreDirectory + "\\sprites\\tiles\\blue.png", 4, 1, points2);
 
-                Objects.CreateSolidObject(Core.CoreDirectory + "\\sprites\\tiles\\crate.png", 300, 300, 100, 1, 10.0);
+                Objects.CreateSolidObj(Core.CoreDirectory + "\\sprites\\tiles\\crate.png", 300, 300, 100, 1, 10.0);
 
                 Objects.CharObjList.Reverse();
-            }
-        }
-        static public void PlayerLeft(CharObj PlayerObj, bool sprint)
-        {
-            if (sprint == true)
-            {
-                PlayerObj.X-=World.PlayerSprintSpeed;
-            }
-            else
-            {
-                PlayerObj.X -= World.PlayerSpeed;
-            }
-            if (PlayerObj.CurrentAnimation != 0)
-            {
-                PlayerObj.CurrentAnimation = 0;
-                PlayerObj.ResetFrames();
-            }
-        }
-        static public void PlayerRight(CharObj PlayerObj, bool sprint)
-        {
-            if (sprint == true)
-            {
-                PlayerObj.X += World.PlayerSprintSpeed;
-            }
-            else
-            {
-                PlayerObj.X += World.PlayerSpeed;
-            }
-            if (PlayerObj.CurrentAnimation != 1)
-            {
-                PlayerObj.CurrentAnimation = 1;
-                PlayerObj.ResetFrames();
-            }
-        }
-        static public void PlayerUp(CharObj PlayerObj, bool sprint)
-        {
-            if (sprint == true)
-            {
-                PlayerObj.Y -= World.PlayerSprintSpeed;
-            }
-            else
-            {
-                PlayerObj.Y -= World.PlayerSpeed;
-            }
-            if (PlayerObj.CurrentAnimation != 2)
-            {
-                PlayerObj.CurrentAnimation = 2;
-                PlayerObj.ResetFrames();
-            }
-        }
-        static public void PlayerDown(CharObj PlayerObj, bool sprint)
-        {
-            if (sprint == true)
-            {
-                PlayerObj.Y += World.PlayerSprintSpeed;
-            }
-            else
-            {
-                PlayerObj.Y += World.PlayerSpeed;
-            }
-            if (PlayerObj.CurrentAnimation != 3)
-            {
-                PlayerObj.CurrentAnimation = 3;
-                PlayerObj.ResetFrames();
-            }
-        }
-        static public void PlayerReleaseLeft(CharObj PlayerObj)
-        {
-            PlayerObj.CurrentAnimation = 4;
-            PlayerObj.ResetFrames();
-        }
-        static public void PlayerReleaseRight(CharObj PlayerObj)
-        {
-            PlayerObj.CurrentAnimation = 5;
-            PlayerObj.ResetFrames();
-        }
-        static public void PlayerReleaseUp(CharObj PlayerObj)
-        {
-            PlayerObj.CurrentAnimation = 6;
-            PlayerObj.ResetFrames();
-        }
-        static public void PlayerReleaseDown(CharObj PlayerObj)
-        {
-            PlayerObj.CurrentAnimation = 7;
-            PlayerObj.ResetFrames();
-        }
-        static public void CameraUpdate()
-        {
-            foreach (CharObj CharObject in Objects.CharObjList)
-            {
-                if (CharObject.isPlayer)
-                {
-                    if (CharObject.X < (World.CameraX + 100))
-                    {
-                        World.CameraX -= World.PlayerSprintSpeed;
-                        World.TileOffsetX -= World.PlayerSprintSpeed;
-                        if (Math.Abs(World.TileOffsetX) >= 32){
-                            World.TileOffsetX = 0;
-                        }
-                        //Console.WriteLine("Player Not in Frame - Left");
-                    }
-                    if (CharObject.X > (World.CameraX + World.WindowWidth - 100))
-                    {
-                        World.CameraX += World.PlayerSprintSpeed;
-                        World.TileOffsetX += World.PlayerSprintSpeed;
-                        if (Math.Abs(World.TileOffsetX) >= 32)
-                        {
-                            World.TileOffsetX = 0;
-                        }
-                        //Console.WriteLine("Player Not in Frame - Right");
-                    }
-                    if (CharObject.Y < (World.CameraY + 100))
-                    {
-                        World.CameraY -= World.PlayerSprintSpeed;
-                        World.TileOffsetY -= World.PlayerSprintSpeed;
-                        if (Math.Abs(World.TileOffsetY) >= 32)
-                        {
-                            World.TileOffsetY = 0;
-                        }
-                        //Console.WriteLine("Player Not in Frame - Top");
-                    }
-                    if (CharObject.Y > (World.CameraY + World.WindowHeight - 100))
-                    {
-                        World.CameraY += World.PlayerSprintSpeed;
-                        World.TileOffsetY += World.PlayerSprintSpeed;
-                        if (Math.Abs(World.TileOffsetY) >= 32)
-                        {
-                            World.TileOffsetY = 0;
-                        }
-                        //Console.WriteLine("Player Not in Frame - Bottom");
-                    }
-                }
             }
         }
     }

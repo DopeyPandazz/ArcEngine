@@ -26,6 +26,7 @@ namespace ArcEngine
             Graphics.InitSolidObjects();
             Graphics.InitTileObjects();
             Graphics.InitTileGroupObjects();
+            Graphics.InitEffectObjects();
         }
         static public void InitForm()
         {
@@ -99,6 +100,22 @@ namespace ArcEngine
                 TileObject.TileTexture = Texture.FromFile(device, TileObject.SpritePath, imgx, imgy, 1, SlimDX.Direct3D9.Usage.None, SlimDX.Direct3D9.Format.A8B8G8R8, SlimDX.Direct3D9.Pool.Default, SlimDX.Direct3D9.Filter.Point, SlimDX.Direct3D9.Filter.Point, 1);
                 Objects.TileLoadCount++;
 
+            }
+        }
+        static public void InitEffectObjects()
+        {
+            foreach (EffectObj EffectObject in Objects.EffectObjList)
+            {
+                Console.WriteLine("Loading Sprites of Effect Object : " + EffectObject.ID);
+                foreach (string SpritePath in EffectObject.SpriteObject.SpriteList)
+                    {
+                        int imgx = EffectObject.Width * EffectObject.Scale;
+                        int imgy = EffectObject.Height * EffectObject.Scale;
+                        EffectObject.SpriteObject.TextureList.Add(Texture.FromFile(device, SpritePath, imgx, imgy, 1, SlimDX.Direct3D9.Usage.None, SlimDX.Direct3D9.Format.A8B8G8R8, SlimDX.Direct3D9.Pool.Default, SlimDX.Direct3D9.Filter.Point, SlimDX.Direct3D9.Filter.Point, 1));
+                        Objects.SpriteLoadCount++;
+                    }
+                    EffectObject.SpriteObject.Loaded = true;
+                    Objects.EffectLoadCount++;
             }
         }
         static public void InitTileGroupObjects()
@@ -278,6 +295,41 @@ namespace ArcEngine
             }
             sprite.End();
         }
+        static public void DrawEffectObject()
+        {
+            foreach (EffectObj EffectObject in Objects.EffectObjList)
+            {
+                if (EffectObject.Deploy == true)
+                {
+                    if (EffectObject.X > (World.CameraX - (EffectObject.Width * 2)) & EffectObject.X < (World.CameraX + World.WindowWidth + (EffectObject.Width * 2)) & EffectObject.Y > (World.CameraY - (EffectObject.Height * 2)) & EffectObject.Y < (World.CameraY + World.WindowHeight + (EffectObject.Height * 2)))
+                    {
+
+                        sprite.Begin(SlimDX.Direct3D9.SpriteFlags.SortDepthBackToFront | SlimDX.Direct3D9.SpriteFlags.AlphaBlend | SpriteFlags.SortTexture);
+                        if (EffectObject.SpriteObject.TextureList.Count == 1)
+                        {
+                            //If the animation has 1 frame and therefore doesent need a frame counter, just draw the one frame
+                            sprite.Draw(EffectObject.SpriteObject.TextureList[0], new Vector3(0, 0, 0), new Vector3((float)EffectObject.X - World.CameraX, (float)EffectObject.Y - World.CameraY, 0), new Color4(1.0f, 1.0f, 1.0f));
+                        }
+                        else
+                        {
+                            //Set the animation frame taking into account the CharObj.Speed
+                            int AnimationFrame = (int)Math.Round((double)(EffectObject.SpriteObject.CurrentFrame * EffectObject.SpriteObject.Frames) / (EffectObject.Speed * EffectObject.SpriteObject.Frames), 0);
+                            //Draw
+                            sprite.Draw(EffectObject.SpriteObject.TextureList[AnimationFrame], new Vector3(0, 0, 0), new Vector3((float)EffectObject.X - World.CameraX, (float)EffectObject.Y - World.CameraY, 0), new Color4(1.0f, 1.0f, 1.0f));
+                            //Advance Current Frame
+                            EffectObject.SpriteObject.CurrentFrame++;
+                            //If at Max Frame(CharObj.Frames), reset Frame Counter(CurrentFrame) to 0
+                            if ((int)Math.Round((double)(EffectObject.SpriteObject.CurrentFrame * EffectObject.SpriteObject.Frames) / (EffectObject.Speed * EffectObject.SpriteObject.Frames), 0) == EffectObject.SpriteObject.Frames)
+                            {
+                                EffectObject.SpriteObject.CurrentFrame = 0;
+                                EffectObject.Deploy = false;
+                            }
+                        }
+                        sprite.End();
+                    }
+                }
+            }
+        }
         static public void DrawDebugMarkers()
         {
             if (World.DebugMarkers)
@@ -310,14 +362,16 @@ namespace ArcEngine
             MessagePump.Run(form, () =>
             {
                 Timer(true);
-                World.CameraUpdate();
+                Functions.CameraUpdate();
                 CheckNewObjects();
                 Input.HandleInput();
                 device.Clear(ClearFlags.Target | ClearFlags.ZBuffer , Color.Black, 1.0f, 0);
                 device.BeginScene();
+                Console.WriteLine(Objects.DeployedEffectObjList.Count);
                 DrawTileObjects();
                 DrawSolidObjects();
                 DrawCharObjects();
+                DrawEffectObject();
                 DrawDebugMarkers();
                 device.EndScene();
                 try
