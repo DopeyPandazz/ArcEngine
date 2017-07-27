@@ -13,3 +13,10 @@
 - [ ] Add UIObj (unsure how this will work yet)
 - [ ] Add ProjObj (projectile object)
 - [ ] Add Seemless Level Changing
+
+# Latest Commit
+Added EffectObj: play animation once, currently no support for the same effect playing at different places.
+Will add a 3d point list of 2d coordinates + the current animation to each EffectObj for simultaneous, independent EffectObj deployment
+
+Added a name based object ID system: this adds a layer of abstraction from the ObjID system and allows the player to find an object based off a name they assign at creation.
+Currently only supported by EffectObj and CharObj.
