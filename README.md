@@ -20,3 +20,11 @@ Will add a 3d point list of 2d coordinates + the current animation to each Effec
 
 Added a name based object ID system: this adds a layer of abstraction from the ObjID system and allows the player to find an object based off a name they assign at creation.
 Currently only supported by EffectObj and CharObj.
+
+# Previous Commits
+Y-Axis Camera: Fixed
+Draw Filter: Filters out objects not on screen and doesn't try to draw them
+Dynamic Player Movement: Better Key Filtering (w,a,s,d controls will work even with another key pressed down)
+Also added sprinting
+
+Initial Commit
