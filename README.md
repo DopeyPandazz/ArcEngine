@@ -1,6 +1,6 @@
 # ArcEngine
 2D game engine written in C# using DirectX 9 (SlimDX)
-
+SlimDX SDK is required to run the program
 # Todo
 - [x] Add SolidOject(Single Frame CharObj, or TileObj with physics) (26/07)
 - [x] Fix Follow Camera - Y axis (26/07)
