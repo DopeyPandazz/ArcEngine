@@ -3,11 +3,54 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace ArcEngine
 {
     class Functions
     {
+        static public bool saveChecker(string save)
+        {
+            bool result = true;
+
+            return result;
+        }
+
+        static public void SaveGame(string save)
+        {
+            //User enters the save name
+            string saveName;
+
+            //Debug. Not real method 
+            Console.WriteLine("Enter your save name: ");
+            saveName = Console.ReadLine();
+            if (saveChecker(saveName))
+            {
+                Console.WriteLine("Error. Save already exists, would you like to load it? Yes or No");//Debug. Not final code
+                string choice = Console.ReadLine();
+                if (choice == "yes" || choice == "Yes")
+                {
+                    //loads saveName 
+                    LoadGame(saveName);
+                }
+                else if (choice == "no" || choice == "No")
+                {
+                    //asks the user for another saveName
+                }
+                else
+                {
+                    Console.WriteLine("Error, You did not enter Yes or No. Try again");
+                    //redo that shit
+                }
+            }
+
+
+        }
+
+        static public void LoadGame(string save)
+        {
+
+        }
         static public void PlayerLeft(CharObj PlayerObj, bool sprint)
         {
             if (sprint == true)
